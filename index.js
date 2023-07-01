@@ -1,4 +1,9 @@
+require("dotenv").config();
+
 const express = require('express');
+const mongoose = require('mongoose');  
+//-now this will initialize the mongoose into our file
+
 var bodyParser = require("body-parser"); 
 
 // database
@@ -10,6 +15,20 @@ const booky = express();
 // initializing bodyparser
 booky.use(bodyParser.urlencoded({extended: true}));
 booky.use(bodyParser.json());
+
+
+//connecting database
+mongoose.connect(process.env.MONGO_URL,
+{
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // useFindAndModify: false,
+    // useCreateIndex: true
+}
+).then(() => console.log("connection established successfully"));
+
+
+
 
 /*
 to get all the book
