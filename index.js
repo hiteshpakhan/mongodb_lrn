@@ -7,7 +7,12 @@ const mongoose = require('mongoose');
 var bodyParser = require("body-parser"); 
 
 // database
-const database = require("./database");
+const database = require("./database/database");
+
+// Models
+const BookModel = require("./database/book");
+const AuthorModel = require("./database/author");
+const publicationModel = require("./database/publication");
 
 // initialling express 
 const booky = express();
@@ -33,23 +38,22 @@ mongoose.connect(process.env.MONGO_URL,
 /*
 to get all the book
 */
-booky.get("/", (req, res) => {
-    return res.json({books: database.books});
+booky.get("/", async (req, res) => {
+    const getAllBooks = await BookModel.find();
+    return res.json(getAllBooks);
 });
 
 /*
 to get specific book
 */
-booky.get("/is/:isbn", (req, res) => {
-    const getSpecificBook = database.books.filter(
-        (b) => b.ISBN == req.params.isbn
-    );
+booky.get("/is/:isbn", async (req, res) => {
+    const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
 
-    if(getSpecificBook.length === 0){
+    if(!getSpecificBook){
         return res.json({error: `No book found of isbn no ${req.params.isbn}`})
     }
 
-    return res.json({book: getSpecificBook});
+    return res.json(getSpecificBook);
 });
 
 /*
@@ -86,8 +90,9 @@ booky.get("/ln/:lang", (req, res)=>{
 /*
 to get all the authors
 */
-booky.get("/author", (req, res)=>{
-    return res.json({authors: database.author});
+booky.get("/authors",async (req, res)=>{
+    const getAllAuthors = await AuthorModel.find();
+    return res.json(getAllAuthors);
 });
 
 /*
@@ -123,8 +128,9 @@ booky.get("/author/book/:isbn", (req,res)=>{
 /*
 to get all the publications
 */
-booky.get("/publications", (req,res)=>{
-    return res.json({publications: database.publication});
+booky.get("/publications",async (req,res)=>{
+    const getAllPublications = await publicationModel.find();
+    return res.json(getAllPublications);
 });
 
 
