@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 var bodyParser = require("body-parser"); 
 
 // database
-const database = require("./database/database");
+// const database = require("./database/database");
 
 // Models
 const BookModel = require("./database/book");
@@ -20,17 +20,14 @@ const booky = express();
 // initializing bodyparser
 booky.use(bodyParser.urlencoded({extended: true}));
 booky.use(bodyParser.json());
+// booky.use(express.json());
 
 
 //connecting database
-mongoose.connect(process.env.MONGO_URL,
-{
+mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    // useFindAndModify: false,
-    // useCreateIndex: true
-}
-).then(() => console.log("connection established successfully"));
+}).then(() => console.log("connection established successfully"));
 
 
 
@@ -59,12 +56,10 @@ booky.get("/is/:isbn", async (req, res) => {
 /*
 to get list of books based on category
 */
-booky.get("/c/:category", (req, res) => {
-    const getSpecificBook = database.books.filter(
-        (book) => book.category.includes(req.params.category)
-    )
+booky.get("/c/:category", async (req, res) => {
+    const getSpecificBook = await BookModel.findOne({category: req.params.category})
 
-    if(getSpecificBook.length === 0){
+    if(!getSpecificBook){
         return res.json({error: `No book found of the category : ${req.params.category}`})
     }
 
@@ -136,19 +131,48 @@ booky.get("/publications",async (req,res)=>{
 
 // # post method:-
 // add new book
-booky.post("/book/new", (req, res) => {
-    const newBook = req.body;
-    database.books.push(newBook);
-    return res.json({updatedBooks: database.books});
+booky.post("/book/new", async (req, res) => {
+    const { newBook } = req.body;
+    const addNewBook = BookModel.create(newBook);
+    return res.json({
+        books: addNewBook,
+        message: "Book has been added!"
+    });
 });
 
 
 // add new author
 booky.post("/author/new", (req, res) => {
     const newAuthor = req.body;
-    database.author.push(newAuthor);
-    return res.json({newAuthor: database.author});
+    const addNewAuthor = AuthorModel.create(newAuthor);
+    console.log(addNewAuthor);
+    return res.json({
+        author: addNewAuthor,
+        message: "authoe successfully added"
+    });
 });
+
+
+
+// to update the data from the mongodb database
+booky.put("/book/update/:isbn", async (req, res) => {
+    const updateBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn
+        },
+        {
+            title:req.body.bookTitle
+        },
+        {
+            new: true
+        }
+    );
+
+    return res.json({
+        books: updateBook
+    })
+})
+
 
 
 // # put method
