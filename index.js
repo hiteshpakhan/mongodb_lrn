@@ -173,6 +173,42 @@ booky.put("/book/update/:isbn", async (req, res) => {
     })
 })
 
+// updating the new author array in books database in the mongodb also updating books array in the author database
+
+booky.put("/book/author/update/:isbn", async (req, res)=>{
+    //update book database
+
+    const updatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn
+        },
+        {
+            $addToSet: {
+                author: req.body.newAuthor
+            }
+        },
+        {
+            new: true
+        }
+    );
+
+    // update the author database
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id: req.body.newAuthor
+        },
+        {
+            $addToSet:{
+                books: req.params.isbn
+            }
+        },
+        {
+            new: true
+        }
+    );
+})
+
+
 
 
 // # put method
@@ -212,6 +248,22 @@ booky.delete("/book/delete/:isbn", (req, res)=>{
     
     return res.json({books: database.books});
 });
+
+// here we will delete the book from the mongodb
+
+booky.delete("/book/delete/mmmmm/:isbn",async (req, res)=>{
+    const updatedBookDatabase = await BookModel.findOneAndDelete(
+        {
+            ISBN: req.params.isbn
+        }
+    );
+
+    return res.json({
+        books: updatedBookDatabase
+    });
+});
+
+
 
 
 // to delete the author from book and related book from author
