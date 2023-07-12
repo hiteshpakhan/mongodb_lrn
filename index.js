@@ -130,9 +130,24 @@ booky.get("/publications",async (req,res)=>{
 
 
 // # post method:- but you will realize that this method is wrong and it will give you error 
-// add new book
 // booky.post("/book/new", async (req, res) => {
-//     const { newBook } = req.body;
+//     const { newBook }  = req.body;
+//     const addNewBook = BookModel.create(newBook);
+//     return res.json({
+//         books: addNewBook,
+//         message: "Book has been added!"
+//     });
+// });
+
+
+
+
+
+
+
+// add new book this is a currect method  
+// booky.post("/book/new", async (req, res) => {
+//     const newBook  = req.body;
 //     const addNewBook = BookModel.create(newBook);
 //     return res.json({
 //         books: addNewBook,
@@ -144,6 +159,7 @@ booky.get("/publications",async (req,res)=>{
 // this is the new method that i learn on the youtube video and this method is error free and currect
 booky.post("/book/new", async (req, res) => {
     const newBook = new BookModel(req.body);
+    // console.log(newBook);
     try {
         await newBook.save();
         res.status(201).send({
@@ -156,13 +172,16 @@ booky.post("/book/new", async (req, res) => {
 });
 
 
+
+
 // add new author
-booky.post("/author/new", (req, res) => {
+booky.post("/author/new", async (req, res) => {
     const newAuthor = req.body;
+    console.log(newAuthor);
     const addNewAuthor = AuthorModel.create(newAuthor);
     console.log(addNewAuthor);
     return res.json({
-        author: addNewAuthor,
+        authors: addNewAuthor,
         message: "authoe successfully added"
     });
 });
