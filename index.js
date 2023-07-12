@@ -129,15 +129,30 @@ booky.get("/publications",async (req,res)=>{
 });
 
 
-// # post method:-
+// # post method:- but you will realize that this method is wrong and it will give you error 
 // add new book
+// booky.post("/book/new", async (req, res) => {
+//     const { newBook } = req.body;
+//     const addNewBook = BookModel.create(newBook);
+//     return res.json({
+//         books: addNewBook,
+//         message: "Book has been added!"
+//     });
+// });
+
+
+// this is the new method that i learn on the youtube video and this method is error free and currect
 booky.post("/book/new", async (req, res) => {
-    const { newBook } = req.body;
-    const addNewBook = BookModel.create(newBook);
-    return res.json({
-        books: addNewBook,
-        message: "Book has been added!"
-    });
+    const newBook = new BookModel(req.body);
+    try {
+        await newBook.save();
+        res.status(201).send({
+            "status": true,
+            "message": "boook added successfully .."
+        });
+    } catch (error) {
+        res.status(400).send(error);
+    }
 });
 
 
